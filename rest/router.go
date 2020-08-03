@@ -22,7 +22,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/ExploratoryEngineering/logging"
+	"github.com/sirupsen/logrus"
 )
 
 // PathParameter is the type used when storing parameters in the context
@@ -125,7 +125,7 @@ func (r *ParameterRouter) GetHandler(uri string) http.HandlerFunc {
 			}
 		}
 	}
-	logging.Debug("No matching handler for %s", uri)
+	logrus.WithField("uri", uri).Debug("No matching handler")
 	return http.NotFound
 }
 

@@ -19,7 +19,7 @@ package pubsub
 import (
 	"sync"
 
-	"github.com/ExploratoryEngineering/logging"
+	"github.com/sirupsen/logrus"
 )
 
 type route struct {
@@ -84,7 +84,10 @@ func (e *EventRouter) Publish(id interface{}, event interface{}) {
 			case route.ch <- event:
 				// This is OK
 			default:
-				logging.Warning("Channel client isn't keeping up with reads. Skipping the event (%v) for ID %v", event, id)
+				logrus.WithFields(logrus.Fields{
+					"event": event,
+					"id":    id,
+				}).Warning("Channel client isn't keeping up with reads. Skipping the event")
 				// Skip event
 			}
 		}

@@ -20,7 +20,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/ExploratoryEngineering/logging"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/net/websocket"
 )
 
@@ -51,7 +51,7 @@ func WebsocketHandler(streamer WebsocketStreamer) http.HandlerFunc {
 		defer ws.Close()
 		if err := streamer.Setup(ws.Request()); err != nil {
 			// write error and return
-			logging.Warning("Setup error: %v", err)
+			logrus.WithError(err).Warning("Setup error")
 			return
 		}
 		defer streamer.Cleanup()
@@ -64,12 +64,12 @@ func WebsocketHandler(streamer WebsocketStreamer) http.HandlerFunc {
 				}
 				buf, err := json.Marshal(msg)
 				if err != nil {
-					logging.Warning("Got error marshalling message %+v: %v", msg, err)
+					logrus.WithError(err).WithField("msg", msg).Warning("Unable to marshal message")
 					return
 				}
 				_, err = ws.Write(buf)
 				if err != nil {
-					logging.Warning("Error writing. Exiting: %v", err)
+					logrus.WithError(err).Warning("Error writing buffer. Exiting.")
 					return
 				}
 			case <-time.After(timeoutSeconds * time.Second):
@@ -83,7 +83,7 @@ func WebsocketHandler(streamer WebsocketStreamer) http.HandlerFunc {
 				}
 				_, err = ws.Write(buf)
 				if err != nil {
-					logging.Warning("Error writing. Exiting: %v", err)
+					logrus.WithError(err).Warning("Error writing keepalive buffer. Exiting.")
 					return
 				}
 			}
