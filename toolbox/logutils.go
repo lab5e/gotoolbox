@@ -15,7 +15,7 @@ var defaultLogger = logrus.New()
 
 // LogParameters contains the default log parameters
 type LogParameters struct {
-	Level string `kong:"help='Logging level',default='debug',enum='trace,debug,info,warning,error'"`
+	Level string `kong:"help='Logging level',default='debug',enum='debug,info,warning,error'"`
 	Type  string `kong:"help='Log type',default='plain',enum='syslog,plain'"`
 }
 
