@@ -117,3 +117,17 @@ func RandomLocalEndpoint() string {
 	}
 	return fmt.Sprintf("127.0.0.1:%d", port)
 }
+
+// IsLoopbackAddress returns true if the listen address (host:port) points at a
+// loopback address. IPv6 addresses aren't supported.
+func IsLoopbackAddress(listenAddress string) bool {
+	host, _, err := net.SplitHostPort(listenAddress)
+	if err != nil {
+		return false
+	}
+	addr := net.ParseIP(host)
+	if addr == nil {
+		return false
+	}
+	return addr.IsLoopback()
+}

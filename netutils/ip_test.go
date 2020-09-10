@@ -28,3 +28,21 @@ func TestFindIPAddress(t *testing.T) {
 func TestFindLoopback(t *testing.T) {
 	FindLoopbackIPv4Interface()
 }
+
+func TestIsLoopback(t *testing.T) {
+	if IsLoopbackAddress("0.0.0.0:1234") {
+		t.Fatal("0.0.0.0 shouldn't be loopback")
+	}
+
+	if IsLoopbackAddress(":4711") {
+		t.Fatal(":4711 should not be loopback")
+	}
+
+	if !IsLoopbackAddress("127.0.0.1:4711") {
+		t.Fatal("127.0.0.1 is loopback")
+	}
+
+	if IsLoopbackAddress("example.com:4711") {
+		t.Fatal("example.com is not loopback")
+	}
+}
