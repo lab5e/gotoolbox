@@ -104,7 +104,7 @@ func (g *grpcServer) Launch(register func(s *grpc.Server), timeout time.Duration
 
 func (g *grpcServer) Stop() {
 	if g.server != nil {
-		g.server.GracefulStop()
+		g.server.Stop()
 	}
 }
 
