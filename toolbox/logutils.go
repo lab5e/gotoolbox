@@ -1,8 +1,11 @@
 package toolbox
 
 import (
+	"fmt"
 	"log"
 	"log/syslog"
+	"path"
+	"runtime"
 	"strings"
 
 	logrus_syslog "github.com/sirupsen/logrus/hooks/syslog"
@@ -62,8 +65,20 @@ func InitLogs(service string, params LogParameters) {
 		logrus.AddHook(hook)
 	}
 	if params.Type == plainLogs {
-		logrus.SetFormatter(&logrus.TextFormatter{FullTimestamp: true, TimestampFormat: "15:04:05.000"})
-		defaultLogger.Formatter = &logrus.TextFormatter{FullTimestamp: true, TimestampFormat: "15:04:05.000"}
+		formatter := &logrus.TextFormatter{
+			FullTimestamp:   true,
+			TimestampFormat: "15:04:05.000",
+			CallerPrettyfier: func(f *runtime.Frame) (function string, file string) {
+				file = fmt.Sprintf("%s:%d", path.Base(f.File), f.Line)
+				function = ""
+				return
+			},
+		}
+		logrus.SetFormatter(formatter)
+		defaultLogger.Formatter = formatter
 	}
 
+	if logrus.IsLevelEnabled(logrus.DebugLevel) {
+		logrus.SetReportCaller(true)
+	}
 }
