@@ -18,3 +18,5 @@ Note that there's no `go.mod` here - your project should include one.
   structs.
 * gRPC
 * Logrus for logging
+* grpc-middleware for metrics interceptors
+* Prometheus (transient, through grpc-middleware)
