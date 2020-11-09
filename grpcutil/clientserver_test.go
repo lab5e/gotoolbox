@@ -20,7 +20,7 @@ import (
 )
 
 func TestInvalidServerTLSConfig(t *testing.T) {
-	serverConfig := GRPCServerParam{"localhost:0", true, "", ""}
+	serverConfig := GRPCServerParam{"localhost:0", true, "", "", false}
 	server, err := NewGRPCServer(serverConfig)
 	if err != nil {
 		t.Fatal(err)
@@ -45,7 +45,7 @@ func TestInvalidClientTLSFiles(t *testing.T) {
 }
 
 func TestInvalidServerTLSFiles(t *testing.T) {
-	serverConfig := GRPCServerParam{"localhost:0", true, "invalid.ca", "invalid.key"}
+	serverConfig := GRPCServerParam{"localhost:0", true, "invalid.ca", "invalid.key", false}
 	srv, err := NewGRPCServer(serverConfig)
 	if err != nil {
 		t.Fatal(err)

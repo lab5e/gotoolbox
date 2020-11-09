@@ -20,6 +20,7 @@ import (
 	"net"
 	"time"
 
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -56,8 +57,13 @@ type grpcServer struct {
 }
 
 func (g *grpcServer) getOpts(config GRPCServerParam) ([]grpc.ServerOption, error) {
+	opts := make([]grpc.ServerOption, 0)
+	if config.Metrics {
+		opts = append(opts, grpc.StreamInterceptor(grpc_prometheus.StreamServerInterceptor))
+		opts = append(opts, grpc.UnaryInterceptor(grpc_prometheus.UnaryServerInterceptor))
+	}
 	if !config.TLS {
-		return []grpc.ServerOption{}, nil
+		return opts, nil
 	}
 	if config.CertFile == "" || config.KeyFile == "" {
 		return nil, errors.New("missing cert file and key file parameters for GRPC server")
@@ -66,7 +72,8 @@ func (g *grpcServer) getOpts(config GRPCServerParam) ([]grpc.ServerOption, error
 	if err != nil {
 		return nil, err
 	}
-	return []grpc.ServerOption{grpc.Creds(creds)}, nil
+	opts = append(opts, grpc.Creds(creds))
+	return opts, nil
 }
 
 func (g *grpcServer) Start(register func(s *grpc.Server)) error {

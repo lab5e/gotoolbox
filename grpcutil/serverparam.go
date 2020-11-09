@@ -22,4 +22,5 @@ type GRPCServerParam struct {
 	TLS      bool   `kong:"help='Enable TLS',default='false'"`
 	CertFile string `kong:"help='Certificate file',type='existingfile'"`
 	KeyFile  string `kong:"help='Certificate key file',type='existingfile'"`
+	Metrics  bool   `kong:"help='Add Prometheus interceptors for server',default='true'"`
 }
