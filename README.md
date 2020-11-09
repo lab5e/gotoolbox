@@ -10,8 +10,6 @@ think "oh, I can't imagine what this is for".
 
 Some of these are gathered from the now-defunct ExploratoryEngineering organization.
 
-Note that there's no `go.mod` here - your project should include one.
-
 ## Referenced libraries
 
 * The Kong library for parameters. This is used throughout the parameter
@@ -19,4 +17,4 @@ Note that there's no `go.mod` here - your project should include one.
 * gRPC
 * Logrus for logging
 * grpc-middleware for metrics interceptors
-* Prometheus (transient, through grpc-middleware)
+* Prometheus golang client library (transient, through grpc-middleware)
