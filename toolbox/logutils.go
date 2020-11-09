@@ -62,6 +62,19 @@ func InitLogs(service string, params LogParameters) {
 			logrus.WithError(err).Fatal("Could not attach syslog")
 			return
 		}
+		// logrus is a bit braindead so we have to explicitly use a text formatter
+		// without timestamp for the syslog output.
+		formatter := &logrus.TextFormatter{
+			DisableColors:    true,
+			DisableTimestamp: true,
+			CallerPrettyfier: func(f *runtime.Frame) (function string, file string) {
+				file = fmt.Sprintf("%s:%d", path.Base(f.File), f.Line)
+				function = ""
+				return
+			},
+		}
+		logrus.SetFormatter(formatter)
+
 		logrus.AddHook(hook)
 	}
 	if params.Type == plainLogs {
