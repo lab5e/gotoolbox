@@ -74,7 +74,7 @@ func TestEventRouterMultipleRoutes(t *testing.T) {
 						return
 					}
 				case <-time.After(100 * time.Millisecond):
-					t.Fatalf("Didn't receive data! Got just %d events, expected 5", received)
+					t.Errorf("Didn't receive data! Got just %d events, expected 5", received)
 				}
 			}
 		}()
