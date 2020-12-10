@@ -41,11 +41,12 @@ func GetDialOpts(config GRPCClientParam) ([]grpc.DialOption, error) {
 }
 
 // NewGRPCClientConnection is a factory method to create gRPC client connections
-func NewGRPCClientConnection(config GRPCClientParam) (*grpc.ClientConn, error) {
-	opts, err := GetDialOpts(config)
+func NewGRPCClientConnection(config GRPCClientParam, opts ...grpc.DialOption) (*grpc.ClientConn, error) {
+	configOpts, err := GetDialOpts(config)
 	if err != nil {
 		return nil, err
 	}
 
+	opts = append(opts, configOpts...)
 	return grpc.Dial(config.ServerEndpoint, opts...)
 }

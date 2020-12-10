@@ -30,10 +30,19 @@ import (
 type GRPCServer interface {
 	// Start launches the server in the foreground
 	Start(registerFunc func(s *grpc.Server)) error
+
+	// StartWithOpts launches a new server with additional server options
+	StartWithOpts(registerFunc func(s *grpc.Server), opts []grpc.ServerOption) error
+
 	// Launch launches the server in the background
 	Launch(registerFunc func(s *grpc.Server), timeout time.Duration) error
+
+	// LaunchWithOpts launches the server in the background with addtional server options
+	LaunchWithOpts(registerFunc func(s *grpc.Server), timeout time.Duration, opts []grpc.ServerOption) error
+
 	// Endpoint returns the server's endpoint
 	ListenAddress() net.Addr
+
 	// Stop shuts down the server
 	Stop()
 }
@@ -56,7 +65,8 @@ type grpcServer struct {
 	server   *grpc.Server
 }
 
-func (g *grpcServer) getOpts(config GRPCServerParam) ([]grpc.ServerOption, error) {
+// GetServerOpts returns the server options
+func GetServerOpts(config GRPCServerParam) ([]grpc.ServerOption, error) {
 	opts := make([]grpc.ServerOption, 0)
 	if config.Metrics {
 		opts = append(opts, grpc.StreamInterceptor(grpc_prometheus.StreamServerInterceptor))
@@ -76,11 +86,7 @@ func (g *grpcServer) getOpts(config GRPCServerParam) ([]grpc.ServerOption, error
 	return opts, nil
 }
 
-func (g *grpcServer) Start(register func(s *grpc.Server)) error {
-	opts, err := g.getOpts(g.config)
-	if err != nil {
-		return err
-	}
+func (g *grpcServer) StartWithOpts(register func(s *grpc.Server), opts []grpc.ServerOption) error {
 	g.server = grpc.NewServer(opts...)
 
 	register(g.server)
@@ -90,6 +96,31 @@ func (g *grpcServer) Start(register func(s *grpc.Server)) error {
 		return err
 	}
 	return nil
+}
+
+func (g *grpcServer) Start(register func(s *grpc.Server)) error {
+	opts, err := GetServerOpts(g.config)
+	if err != nil {
+		return err
+	}
+	return g.StartWithOpts(register, opts)
+}
+
+func (g *grpcServer) LaunchWithOpts(register func(s *grpc.Server), timeout time.Duration, opts []grpc.ServerOption) error {
+	errCh := make(chan error)
+
+	go func() {
+		if err := g.StartWithOpts(register, opts); err != nil {
+			errCh <- err
+		}
+	}()
+
+	select {
+	case err := <-errCh:
+		return err
+	case <-time.After(timeout):
+		return nil
+	}
 }
 
 func (g *grpcServer) Launch(register func(s *grpc.Server), timeout time.Duration) error {
