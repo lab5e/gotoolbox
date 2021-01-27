@@ -86,14 +86,18 @@ func GetServerOpts(config GRPCServerParam) ([]grpc.ServerOption, error) {
 	return opts, nil
 }
 
+func (g *grpcServer) registerMetrics() {
+	if g.config.Metrics {
+		grpc_prometheus.Register(g.server)
+	}
+}
+
 func (g *grpcServer) StartWithOpts(register func(s *grpc.Server), opts []grpc.ServerOption) error {
 	g.server = grpc.NewServer(opts...)
 
 	register(g.server)
 
-	if g.config.Metrics {
-		grpc_prometheus.Register(g.server)
-	}
+	g.registerMetrics()
 
 	if err := g.server.Serve(g.listener); err != nil {
 		logrus.WithError(err).Error("Unable to serve gRPC")
@@ -129,6 +133,7 @@ func (g *grpcServer) LaunchWithOpts(register func(s *grpc.Server), timeout time.
 
 func (g *grpcServer) Launch(register func(s *grpc.Server), timeout time.Duration) error {
 	errCh := make(chan error)
+	g.registerMetrics()
 
 	go func() {
 		if err := g.Start(register); err != nil {
