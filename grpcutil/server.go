@@ -133,7 +133,6 @@ func (g *grpcServer) LaunchWithOpts(register func(s *grpc.Server), timeout time.
 
 func (g *grpcServer) Launch(register func(s *grpc.Server), timeout time.Duration) error {
 	errCh := make(chan error)
-	g.registerMetrics()
 
 	go func() {
 		if err := g.Start(register); err != nil {
