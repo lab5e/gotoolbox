@@ -31,7 +31,8 @@ type GRPCServer interface {
 	// Start launches the server in the foreground
 	Start(registerFunc func(s *grpc.Server)) error
 
-	// StartWithOpts launches a new server with additional server options
+	// StartWithOpts launches a new server with additional server options. Use
+	// GetServerOpts to get the default set of options.
 	StartWithOpts(registerFunc func(s *grpc.Server), opts []grpc.ServerOption) error
 
 	// Launch launches the server in the background
@@ -65,7 +66,10 @@ type grpcServer struct {
 	server   *grpc.Server
 }
 
-// GetServerOpts returns the server options
+// GetServerOpts returns the server options. Note that the options might
+// include an unary interceptor if the metrics flag is set (there can be only
+// one per server) so if you use additional unary interceptors you have to chain
+// them yourself.
 func GetServerOpts(config GRPCServerParam) ([]grpc.ServerOption, error) {
 	opts := make([]grpc.ServerOption, 0)
 	if config.Metrics {
