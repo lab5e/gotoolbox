@@ -22,9 +22,9 @@ import (
 	"strings"
 )
 
-// FindPublicIPv4 returns the public IPv4 address of the. If there's more than
-// one public IP(v4) address the first found is returned. Docker interfaces and
-// interfaces with index > 100 is skipped
+// FindPublicIPv4 returns the public IPv4 address of the computer. If there's
+// more than one public IP(v4) address the first found is returned. Docker
+// interfaces and interfaces with index > 100 is skipped
 func FindPublicIPv4() (net.IP, error) {
 	ifaces, err := net.Interfaces()
 	if err != nil {
@@ -35,8 +35,10 @@ func FindPublicIPv4() (net.IP, error) {
 			// Skip any docker interfaces
 			continue
 		}
-		if ifi.Index > 100 {
-			// assuming index > 100 is a bridge
+		if ifi.Index > 300 {
+			// assuming index > 300 is a bridge. Interfaces inside of Docker
+			// containers will have index > 100, temporary docker interfaces
+			// on the host will have index > 500
 			continue
 		}
 		if (ifi.Flags & net.FlagUp) == 0 {
