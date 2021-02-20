@@ -19,24 +19,30 @@ import (
 	"fmt"
 	"net"
 	"strconv"
+	"strings"
 )
 
 // FindPublicIPv4 returns the public IPv4 address of the. If there's more than
-// one public IP(v4) address the first found is returned.
-// Ideally this should use IPv6 but we're currently running in AWS and IPv6
-// support is so-so.
-//
+// one public IP(v4) address the first found is returned. Docker interfaces and
+// interfaces with index > 100 is skipped
 func FindPublicIPv4() (net.IP, error) {
 	ifaces, err := net.Interfaces()
 	if err != nil {
 		return nil, err
 	}
 	for _, ifi := range ifaces {
+		if strings.HasPrefix(ifi.Name, "docker") {
+			// Skip any docker interfaces
+			continue
+		}
+		if ifi.Index > 100 {
+			// assuming index > 100 is a bridge
+			continue
+		}
 		if (ifi.Flags & net.FlagUp) == 0 {
 			continue
 		}
 		if (ifi.Flags & net.FlagMulticast) > 0 {
-
 			addrs, err := ifi.Addrs()
 			if err != nil {
 				return nil, err
