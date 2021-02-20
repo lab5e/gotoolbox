@@ -15,7 +15,14 @@ package netutils
 //See the License for the specific language governing permissions and
 //limitations under the License.
 //
-import "testing"
+import (
+	"fmt"
+	"net"
+	"sort"
+	"testing"
+
+	"github.com/stretchr/testify/require"
+)
 
 func TestFindIPAddress(t *testing.T) {
 	addr, err := FindPublicIPv4()
@@ -44,5 +51,22 @@ func TestIsLoopback(t *testing.T) {
 
 	if IsLoopbackAddress("example.com:4711") {
 		t.Fatal("example.com is not loopback")
+	}
+}
+
+func TestInterfaceSorter(t *testing.T) {
+	assert := require.New(t)
+	// Just grab the local interfaces and run through sort.Sort
+	ifaces, err := net.Interfaces()
+	assert.NoError(err)
+	ifs := &interfaceSorter{ifaces}
+	sort.Sort(ifs)
+
+	oldIndex := 0
+	for n, i := range ifs.interfaces {
+		fmt.Println(i.Index)
+		if i.Index <= oldIndex {
+			assert.Failf("Sorting is broken", "Interface at index %d is %d but should be bigger", n, i.Index)
+		}
 	}
 }

@@ -18,9 +18,26 @@ package netutils
 import (
 	"fmt"
 	"net"
+	"sort"
 	"strconv"
 	"strings"
 )
+
+type interfaceSorter struct {
+	interfaces []net.Interface
+}
+
+func (s *interfaceSorter) Swap(i, j int) {
+	s.interfaces[i], s.interfaces[j] = s.interfaces[j], s.interfaces[i]
+}
+
+func (s *interfaceSorter) Less(i, j int) bool {
+	return s.interfaces[i].Index < s.interfaces[j].Index
+}
+
+func (s *interfaceSorter) Len() int {
+	return len(s.interfaces)
+}
 
 // FindPublicIPv4 returns the public IPv4 address of the computer. If there's
 // more than one public IP(v4) address the first found is returned. Docker
@@ -30,15 +47,17 @@ func FindPublicIPv4() (net.IP, error) {
 	if err != nil {
 		return nil, err
 	}
-	for _, ifi := range ifaces {
+	// Sort the interfaces on index; the lower numbers are the host interfaces
+	// and are most likely to be the proper external interface (typically lo is
+	// 1, ethernet is 2, docker is 3 if they are started in that order. If
+	// Docker creates bridges and temporary interfaces for containers they are
+	// added later and have index > 500)
+
+	ifs := &interfaceSorter{ifaces}
+	sort.Sort(ifs)
+	for _, ifi := range ifs.interfaces {
 		if strings.HasPrefix(ifi.Name, "docker") {
 			// Skip any docker interfaces
-			continue
-		}
-		if ifi.Index > 300 {
-			// assuming index > 300 is a bridge. Interfaces inside of Docker
-			// containers will have index > 100, temporary docker interfaces
-			// on the host will have index > 500
 			continue
 		}
 		if (ifi.Flags & net.FlagUp) == 0 {
