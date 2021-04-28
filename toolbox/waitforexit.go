@@ -1,11 +1,10 @@
 package toolbox
 
 import (
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
-
-	"github.com/sirupsen/logrus"
 )
 
 // Make this available for tests
@@ -17,7 +16,7 @@ func init() {
 
 // WaitForSignal waits for a signal to terminate
 func WaitForSignal() {
-	logrus.Debug("Waiting for kill signal")
+	log.Printf("Waiting for kill signal")
 	terminator := make(chan bool)
 
 	signal.Notify(sigch, os.Interrupt, syscall.SIGTERM)

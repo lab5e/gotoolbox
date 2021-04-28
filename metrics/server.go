@@ -17,13 +17,13 @@ package metrics
 //
 import (
 	"fmt"
+	"log"
 	"net"
 	"net/http"
 	"net/http/pprof"
 	"sync/atomic"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/sirupsen/logrus"
 )
 
 // Server is the monitoring endpoint. The monitoring endpoint provides
@@ -88,7 +88,7 @@ func NewMonitoringServer(endpoint string) (*Server, error) {
 func (s *Server) Start() error {
 	go func() {
 		if err := http.Serve(s.Listener, s.mux); err != http.ErrServerClosed {
-			logrus.WithError(err).Warning("Unable to listen and serve")
+			log.Printf("Unable to listen and serve: %v", err)
 		}
 	}()
 	return nil
@@ -109,7 +109,7 @@ func (s *Server) Shutdown() error {
 // If it is listening on the loopback adapter the loopback address is returned.
 func (s *Server) ListenAddress() net.Addr {
 	if s.Listener == nil {
-		logrus.Fatal("Listener is nil")
+		log.Printf("ListenAddress is nil")
 	}
 	return s.Listener.Addr()
 }

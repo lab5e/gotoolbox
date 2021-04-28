@@ -17,11 +17,11 @@ package grpcutil
 //
 import (
 	"errors"
+	"log"
 	"net"
 	"time"
 
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -104,7 +104,7 @@ func (g *grpcServer) StartWithOpts(register func(s *grpc.Server), opts []grpc.Se
 	g.registerMetrics()
 
 	if err := g.server.Serve(g.listener); err != nil {
-		logrus.WithError(err).Error("Unable to serve gRPC")
+		log.Printf("Unable to serve gRPC: %v", err)
 		return err
 	}
 	return nil

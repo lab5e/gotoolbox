@@ -2,9 +2,8 @@ package netutils
 
 import (
 	"fmt"
+	"log"
 	"net"
-
-	"github.com/sirupsen/logrus"
 )
 
 // ServiceHostPort returns the listener address as a host:port string. If
@@ -16,7 +15,7 @@ func ServiceHostPort(addr net.Addr) string {
 		if tcpAddr.IP.IsUnspecified() {
 			publicIP, err := FindPublicIPv4()
 			if err != nil {
-				logrus.Fatal("Unable to determine public IP")
+				log.Printf("Unable to determine public IP: %v", err)
 			}
 			return fmt.Sprintf("%s:%d", publicIP.String(), tcpAddr.Port)
 		}
@@ -28,12 +27,12 @@ func ServiceHostPort(addr net.Addr) string {
 		if udpAddr.IP.IsUnspecified() {
 			publicIP, err := FindPublicIPv4()
 			if err != nil {
-				logrus.Fatal("Unable to determine public IP")
+				log.Printf("Unable to determine public IP: %v", err)
 			}
 			return fmt.Sprintf("%s:%d", publicIP.String(), udpAddr.Port)
 		}
 		return udpAddr.String()
 	}
-	logrus.WithField("addr", addr).Fatalf("Listen address isn't TCP or UDP (%T)", addr)
+	log.Printf("Listen address isn't TCP or UDP (%T)", addr)
 	return ""
 }

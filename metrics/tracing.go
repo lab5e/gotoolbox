@@ -18,13 +18,12 @@ package metrics
 import (
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"runtime/trace"
 	"strconv"
 	"time"
-
-	"github.com/sirupsen/logrus"
 )
 
 //
@@ -47,12 +46,12 @@ func enableTracingRoutine() {
 			traceFileName := time.Now().Format("trace_2006-01-02T150405.out")
 			traceFile, err := os.Create(traceFileName)
 			if err != nil {
-				logrus.WithError(err).Errorf("Unable to create trace file '%s'", traceFileName)
+				log.Printf("Unable to create trace file '%s': %v", traceFileName, err)
 				continue
 			}
-			logrus.Infof("Trace started for %d seconds. Trace file name is %s", int(duration.Seconds()), traceFileName)
+			log.Printf("Trace started for %d seconds. Trace file name is %s", int(duration.Seconds()), traceFileName)
 			if err := trace.Start(traceFile); err != nil {
-				logrus.Errorf("Unable to start the trace: %v", err)
+				log.Printf("Unable to start the trace: %v", err)
 				traceFile.Close()
 				continue
 			}
@@ -60,7 +59,7 @@ func enableTracingRoutine() {
 
 			trace.Stop()
 			traceFile.Close()
-			logrus.Infof("Trace is completed. Results are placed in %s (run with go tool trace [filename])", traceFileName)
+			log.Printf("Trace is completed. Results are placed in %s (run with go tool trace [filename])", traceFileName)
 		}
 	}()
 }

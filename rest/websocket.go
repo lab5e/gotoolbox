@@ -17,10 +17,10 @@ package rest
 //
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 
-	"github.com/sirupsen/logrus"
 	"golang.org/x/net/websocket"
 )
 
@@ -51,7 +51,7 @@ func WebsocketHandler(streamer WebsocketStreamer) http.HandlerFunc {
 		defer ws.Close()
 		if err := streamer.Setup(ws.Request()); err != nil {
 			// write error and return
-			logrus.WithError(err).Warning("Setup error")
+			log.Printf("Websocket setup error: %v", err)
 			return
 		}
 		defer streamer.Cleanup()
@@ -64,12 +64,12 @@ func WebsocketHandler(streamer WebsocketStreamer) http.HandlerFunc {
 				}
 				buf, err := json.Marshal(msg)
 				if err != nil {
-					logrus.WithError(err).WithField("msg", msg).Warning("Unable to marshal message")
+					log.Printf("Unable to marshal message (%v): %v", msg, err)
 					return
 				}
 				_, err = ws.Write(buf)
 				if err != nil {
-					logrus.WithError(err).Warning("Error writing buffer. Exiting.")
+					log.Printf("Error writing buffer. Exiting: %v", err)
 					return
 				}
 			case <-time.After(timeoutSeconds * time.Second):
@@ -83,7 +83,7 @@ func WebsocketHandler(streamer WebsocketStreamer) http.HandlerFunc {
 				}
 				_, err = ws.Write(buf)
 				if err != nil {
-					logrus.WithError(err).Warning("Error writing keepalive buffer. Exiting.")
+					log.Printf("Error writing keepalive buffer. Exiting: %v", err)
 					return
 				}
 			}
