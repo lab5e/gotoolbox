@@ -20,13 +20,14 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 // GetDialOpts returns a populated grpc.DialOption array from the
 // client parameters.
 func GetDialOpts(config GRPCClientParam) ([]grpc.DialOption, error) {
 	if !config.TLS {
-		return []grpc.DialOption{grpc.WithInsecure()}, nil
+		return []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}, nil
 	}
 
 	if config.CAFile == "" {
@@ -48,5 +49,5 @@ func NewGRPCClientConnection(config GRPCClientParam, opts ...grpc.DialOption) (*
 	}
 
 	opts = append(opts, configOpts...)
-	return grpc.Dial(config.ServerEndpoint, opts...)
+	return grpc.NewClient(config.ServerEndpoint, opts...)
 }

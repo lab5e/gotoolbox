@@ -17,7 +17,6 @@ package metrics
 //
 import (
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -26,13 +25,11 @@ import (
 	"time"
 )
 
-//
 // Tracing endpoint. The trace is controlled via an unbuffered channel of
 // time.Duration values. Each value is read off the channel and a trace is
 // started with the given duration. The channel will block writing while a
 // trace is running and reading is blocked until someone sends something on
 // the trace channel.
-//
 var traceChan chan time.Duration
 
 // EnableTracing starts the tracing goroutine
@@ -72,7 +69,7 @@ func traceHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodPost:
-			buf, err := ioutil.ReadAll(r.Body)
+			buf, err := io.ReadAll(r.Body)
 			if err != nil {
 				http.Error(w, "Specify time to trace in body", http.StatusBadRequest)
 				return

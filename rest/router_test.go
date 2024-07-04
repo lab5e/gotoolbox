@@ -104,7 +104,7 @@ func TestPathKeys(t *testing.T) {
 
 // A benchmark that both adds and routes
 func BenchmarkRouting(b *testing.B) {
-	rand.Seed(42)
+	rng := rand.New(rand.NewSource(42))
 	const routeCount int = 50
 	router := ParameterRouter{}
 	testHandler := func(w http.ResponseWriter, r *http.Request) { /* empty */ }
@@ -114,7 +114,7 @@ func BenchmarkRouting(b *testing.B) {
 	}
 
 	for i := 0; i < b.N; i++ {
-		randomRoute := fmt.Sprintf("/some/%d/%d/%d", rand.Intn(routeCount), rand.Intn(routeCount), rand.Intn(routeCount))
+		randomRoute := fmt.Sprintf("/some/%d/%d/%d", rng.Intn(routeCount), rng.Intn(routeCount), rng.Intn(routeCount))
 		handler := router.GetHandler(randomRoute)
 		if handler == nil {
 			b.Error("Did not expect nil response")
@@ -134,14 +134,14 @@ var routesToTest []string
 func init() {
 	brouter = ParameterRouter{}
 
-	rand.Seed(42)
+	rng := rand.New(rand.NewSource(42))
 	testHandler := func(w http.ResponseWriter, r *http.Request) { /* empty */ }
 	for i := 0; i < routeCount; i++ {
 		route := fmt.Sprintf("/some/{arg1}/%d/{arg2}", i)
 		brouter.AddRoute(route, testHandler)
 	}
 	for i := 0; i < routeCount; i++ {
-		routesToTest = append(routesToTest, fmt.Sprintf("/some/%d/%d/%d", rand.Intn(routeCount), i, rand.Intn(routeCount)))
+		routesToTest = append(routesToTest, fmt.Sprintf("/some/%d/%d/%d", rng.Intn(routeCount), i, rng.Intn(routeCount)))
 		routesToTest = append(routesToTest, "/not/matching/route")
 	}
 }

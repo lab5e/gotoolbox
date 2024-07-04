@@ -133,7 +133,6 @@ const ratio = 50
 
 func setupBenchmark(count int) (*EventRouter, []<-chan interface{}) {
 	e := NewEventRouter(1)
-	rand.Seed(time.Now().UnixNano())
 	chs := make([]<-chan interface{}, count)
 	for i := 0; i < count; i++ {
 		if rand.Intn(100) < ratio {
